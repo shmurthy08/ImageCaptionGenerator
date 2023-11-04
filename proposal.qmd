@@ -14,7 +14,7 @@ toc-title: Table of Contents
 
 # 1. Introduction
 
-For our CPSC 393 Final Project, our group is planning on creating an Image Caption Generator built using CNN and LSTM architectures. The goal of this project is to create a model that can take in an image and generate a caption that describes the image. The dataset used for this proposal is the [Flickr8k](https://www.kaggle.com/datasets/adityajn105/flickr8k) dataset. This dataset contains 8000 images that are paired with 5 different and unique captions that describe its respective image. For example this is a line derived from the `captions.txt` file: 
+For our CPSC 393 Final Project, our group is planning on creating an Image Caption Generator built using CNN and LSTM architectures. The goal of this project is to create a model that can take in an image and generate a caption that describes the image. The dataset used for this proposal is the [Flickr8k](https://www.kaggle.com/datasets/adityajn105/flickr8k) dataset. This dataset contains 8000 images that are paired with 5 different and unique captions that describe its respective image. For example, below are a few lines derived from the `captions.txt` file: 
 
 | Image   |      Caption      |
 |----------|:-------------|
@@ -24,7 +24,7 @@ For our CPSC 393 Final Project, our group is planning on creating an Image Capti
 
 # 2. Goal of the model
 
-The model should be able to create accurate and readable (i.e a sentence that represents the image provided). The caption should be roughl 35 characters long (subject to change). 
+The model should be able to create accurate and readable (i.e a sentence that represents the image provided). The caption should be roughly 35 characters long (subject to change). 
 
 A successful model should have a high level readability and should mimic near-human performance when describing an image. 
 
@@ -32,6 +32,10 @@ A successful model should have a high level readability and should mimic near-hu
 # 3. Architecture/Techniques
 
 As of right now we are planning on using a CNN and LSTM architecture. The CNN will be used to extract features from the image and the LSTM will be used to generate the caption. There will be two components: an Image Encoder and Caption Generator.
+
+Below is a Picture of the Architecture:
+
+![Architecture - Credit to Clairvoyant](https://cdn.discordapp.com/attachments/1031350086191566899/1170472339058720929/CNN-LSN.png?ex=65592a4f&is=6546b54f&hm=5f0be43ca79436cd2c36628e435f4edc697cfab600c9b672b19101f54067ba1e& width="500" height="500")
 
 ## 3.1 Image Encoder
 
@@ -58,3 +62,4 @@ There are no ethical concerns with this project. The dataset is a public dataset
 - [Flickr8k Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
 - [Measuring Captions Generated](https://blog.paperspace.com/automated-metrics-for-evaluating-generated-text/)
 - [Technical Report on Image Caption Generator](https://www.math.ucla.edu/~minchen/doc/ImgCapGen.pdf)
+- [Image Reference](https://www.clairvoyant.ai/blog/image-caption-generator)
