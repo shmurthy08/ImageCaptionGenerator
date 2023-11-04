@@ -52,11 +52,11 @@ To evaluate if the model is performing well we would want to compare the candida
 
 Deep learning is indeed required for this project, the dataset requires us to use Deep Learning to learn features from the images and to automatically generate captions. There are no basic models (i.e KNN, SVM, etc.) that can be used to generate captions. Furthermore, this is an intensive problem so using Deep Learning, especially transfer learning models, can help us save time and resources when training the model. Moreover, it will create a more accurate model that can learn image features and generate captions.
 
-# 6. Ethical Concerns
+# 5. Ethical Concerns
 
 There are no ethical concerns with this project. The dataset is a public dataset that is used for research purposes. Furthermore, the dataset does not contain any sensitive information and is not biased. The dataset has been used by others previously for various projects. 
 
-# 7. References
+# 6. References
 
 - [Flickr8k Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
 - [Measuring Captions Generated](https://blog.paperspace.com/automated-metrics-for-evaluating-generated-text/)
