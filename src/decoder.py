@@ -1,12 +1,22 @@
+"""
+This script defines a decoder model for an image caption generator using TensorFlow and Keras. It loads GloVe embeddings, preprocesses the captions, tokenizes them, and creates sequences of input image features and output captions for training the model. The decoder model is defined using an embedding layer, two LSTM layers, two layer normalization layers, and two dense layers. The model is compiled using categorical cross-entropy loss and the Adam optimizer, and is trained on the input image features and output captions. 
+"""
 import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense, TimeDistributed
+from tensorflow.keras.utils import to_categorical, plot_model
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Input, Dropout, add
 from tensorflow.keras.layers import LayerNormalization
 import pickle
 import os
-import string
+
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+
+
+# Load image features
+with open('extracted_feats.pkl', 'rb') as f:
+    image_features = pickle.load(f)
 
 
 # Load GloVe embeddings
@@ -19,112 +29,211 @@ with open('./glove_embeddings/glove.6B.100d.txt', encoding='utf-8') as f:
         glove_embeddings[word] = coefs
         
 
-# Load captions.txt into mem
-def load_doc(filename):
-    # open file
-    file = open(filename, 'r')
-    text = file.read()
-    file.close()
-    return text
+# Create an empty dictionary to store image IDs and their corresponding captions
+map = {}
 
-# extract descriptions
-def load_description(doc):
-    map = dict()
-    for line in doc.split('\n'):
-        tokens = line.split()
-        if len(line) < 2:
-            continue
-        # first token = img id and rest is description
-        img_id, img_dec = tokens[0], tokens[1:]
-        img_id = img_id.split('.')[0]
-        img_dec = ' '.join(img_dec)
-        map[img_id] = list()
-        map[img_id].append(img_dec)
-    return map
+# Open the captions.txt file and read its contents
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', 'Flicker8k', 'captions.txt')) as f:
+    # Skip the first line (header)
+    next(f)
+    # Read the rest of the file
+    captions_doc = f.read()
 
-
-def clean_descriptions(descriptions):
-    tbl = str.maketrans('', '', string.punctuation)
-    for key, desc_list in descriptions.items():
-        for i in range(len(desc_list)):
-            desc = desc_list[i]
-            # tokenize
-            desc = desc.split()
-            # conv to lower case; remove punc and numbers
-            desc = [word.lower() for word in desc]
-            desc = [w.translate(tbl) for w in desc]
-            desc = [word for word in desc if len(word)>1]
-            desc = [word for word in desc if word.isalpha()]
-			# store as string
-            desc_list[i] =  ' '.join(desc)
-
-
-# convert to vocab of words
-def vocab(descriptions):
-    all_desc = set()
-    for key in descriptions.keys():
-        [all_desc.update(d.split()) for d in descriptions[key]]
-    return all_desc
-
-# save descriptions
-def save_desc(desc, filename):
-    lines = list()
-    for key, desclist in desc.items():
-        for desc in desclist:
-            lines.append(key + ' ' + desc)
-    data = '\n'.join(lines)
-    file = open(filename, 'w')
-    file.write(data)
-    file.close()
+#process lines
+for line in captions_doc.split('\n'):
+    tokens = line.split(',')
+    if len(line) < 2:
+        continue
+    image_id, caption = tokens[0], tokens[1:]
+    # remove extension from image ID
+    image_id = image_id.split('.')[0]
+    # convert caption list to string
+    caption = " ".join(caption)
+    # create list if needed
+    if image_id not in map:
+        map[image_id] = []
+    # store the caption
+    map[image_id].append(caption)
     
-filename = captions_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', 'Flicker8k', 'captions.txt')
-doc = load_doc(filename)
-descriptions = load_description(doc)
-print('Loaded: %d ' % len(descriptions))
-clean_descriptions(descriptions)
-vocab = vocab(descriptions)
-print('Vocabulary Size: %d' % len(vocab))
+print(len(map))
 
-save_desc(descriptions, 'descriptions.txt')
+##########################
 
+# PREPROCESSING
 
-# # Read in the captions from Flicker8k
+def cleaning(map):
+    """
+    This function takes a dictionary of image names and their corresponding captions as input.
+    It cleans the captions by converting them to lowercase, removing non-alphabetic characters,
+    adding start and end tags to the captions, and deleting additional spaces.
 
-# captions = []
-# captions_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', 'Flicker8k', 'captions.txt')
-# with open(captions_dir, 'r') as file:
-#     lines = file.readlines()
-#     captions = [line.split(',', 1)[1].strip() for line in lines] # we want just the captions not the image it's associated with
-    
-# # Tokenize and preprocess captions
-# tokenizer = Tokenizer()
-# tokenizer.fit_on_texts(captions)
-# sequences = tokenizer.texts_to_sequences(captions)
-# max_len = max(len(seq) for seq in sequences)
-# pad_seq = pad_sequences(sequences, maxlen=max_len, padding='post')
+    Args:
+    - map: A dictionary of image names and their corresponding captions.
 
-# embedding_dim = len(glove_embeddings['a'])
-# vocab_size = len(tokenizer.word_index) + 1 
+    Returns:
+    - None. The function modifies the input dictionary in place.
+    """
 
+    # iterate over the dictionary items
+    for key, caps in map.items():
+        # iterate over the captions for each image
+        for i in range(len(caps)):
+            caption = caps[i]
+            # convert the caption to lowercase
+            caption = caption.lower()
+            # remove non-alphabetic characters
+            caption = [word for word in caption.split() if word.isalpha()]
+            caption = ' '.join(caption)
+            # delete additional spaces
+            caption = caption.replace('\s+', ' ')
+            # add start and end tags to the caption
+            caption = 'startseq ' + " ".join([word for word in caption.split() if len(word)>1]) + ' endseq'
+            caps[i] = caption
+            
+cleaning(map)
+print(map['1000268201_693b08cb0e'])
+# Create an empty list to store all captions
+all_captions = []
 
-# embedding_matrix = np.zeros((vocab_size, embedding_dim))
-
-# for word, i in tokenizer.word_index.items():
-#     embedding_vec = glove_embeddings.get(word)
-#     if embedding_vec is not None:
-#         embedding_matrix[i] = embedding_vec
+# Iterate over the dictionary items
+for key in map: 
+    # Iterate over the captions for each image
+    for cap in map[key]:
+        # Append the caption to the list of all captions
+        all_captions.append(cap)
         
-# model = Sequential()
-# model.add(Embedding(vocab_size, embedding_dim, weights=[embedding_matrix], input_length=max_len, trainable=True))
-# model.add(LSTM(100, return_sequences=True))
-# model.add(LayerNormalization()) 
-# model.add(LSTM(100)) 
-# model.add(Dense(100, activation='relu'))
-# model.add(Dense(vocab_size, activation='softmax'))
+# print(len(all_captions)) uncomment for test purposes
+ 
 
-# model.compile(loss='categorical_crossentropy', optimizer='adam')
+#########################
 
-# # Load image representations from pickle file
-# with open('extracted_feats.pkl', 'rb') as file:
-#     image_representations = pickle.load(file)
+# Tokenize
+tokenizer = Tokenizer()
+tokenizer.fit_on_texts(all_captions)
+vocab_size = len(tokenizer.word_index) + 1
 
+
+# uncomment below line for test reasons
+# print(vocab_size) 
+
+# get max length
+max_length = max(len(caption.split()) for caption in all_captions)
+
+print(max_length)
+
+# TTS time - manual TTS for sequential reasons
+img_ids = list(map.keys())
+
+
+split = int(len(img_ids) * 0.80)
+train = img_ids[:split]
+test = img_ids[split:]
+
+
+def data_generator(data_keys, mapping, features, tokenizer, max_length, vocab_size, batch_size=128):
+    """
+    Generator function that yields a batch of data at a time.
+
+    Args:
+        data_keys (list): List of image IDs.
+        mapping (dict): Dictionary of image IDs and their corresponding captions.
+        features (dict): Dictionary of image IDs and their corresponding features.
+        tokenizer (keras.preprocessing.text.Tokenizer): Tokenizer object used to convert text to sequences.
+        max_length (int): Maximum length of input sequence.
+        vocab_size (int): Size of vocabulary.
+        batch_size (int): Batch size for training.
+
+    Yields:
+        tuple: A tuple of numpy arrays containing input image features, input sequences, and output sequences.
+    """
+    X1, X2, y = [], [], []
+    while True:
+        for key, caps in mapping.items():
+            feature = features[key][0]
+            for cap in caps:
+                seq = tokenizer.texts_to_sequences([cap])[0]
+                for i in range(1, len(seq)):
+                    in_seq, out_seq = seq[:i], seq[i]
+                    in_seq = pad_sequences([in_seq], maxlen=max_length, padding='post')[0]
+                    out_seq = to_categorical([out_seq], num_classes=vocab_size)[0]
+                    X1.append(feature)
+                    X2.append(in_seq)
+                    y.append(out_seq)
+                    if len(X1) == batch_size:
+                        yield [np.array(X1), np.array(X2)], np.array(y)
+                        X1, X2, y = [], [], []
+
+# Splitting data into train and test sets
+train_cap = []
+test_cap = []
+for key, caps in map.items():
+    if key in train:
+        [train_cap.append(cap) for cap in caps]
+    else:
+        [test_cap.append(cap) for cap in caps]
+
+# print(train_cap)
+# print(test_cap)
+
+
+
+
+# Combining GloVe with our caption embeddings
+embedding_dim = len(glove_embeddings['a'])
+embed_matrix = np.zeros((vocab_size, embedding_dim))
+
+for word, index in tokenizer.word_index.items():
+    embedding_vec = glove_embeddings.get(word)
+    if embedding_vec is not None:
+        embed_matrix[index] = embedding_vec
+        
+
+print("Image Features Shape: ", len(image_features))
+
+# Define encoder model
+inputs1 = Input(shape=(2048,))
+fe1 = Dropout(0.5)(inputs1)
+fe2 = Dense(256, activation='relu')(fe1)
+
+# Seq feature layer
+inputs2 = Input(shape=(max_length,))
+se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
+se2 = Dropout(0.5)(se1)
+se3 = LSTM(256, return_sequences=True)(se2)
+norm = LayerNormalization()(se3)
+se4 = LSTM(256)(norm)
+norm = LayerNormalization()(se4)
+
+# Decoder model
+decoder1 = add([fe2, norm])
+decoder2 = Dense(256, activation='relu')(decoder1)
+outputs = Dense(vocab_size, activation='softmax')(decoder2)
+
+# Tie it together
+decoder_model = Model(inputs=[inputs1, inputs2], outputs=outputs)
+decoder_model.summary()
+plot_model(decoder_model, to_file='complete_arch.png', show_shapes=True)
+
+# Compile the model
+decoder_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+
+steps = len(train_cap)//128
+epochs = 100 
+
+
+for epoch in range(epochs):
+    print(f"Epoch {epoch + 1}/{epochs}")
+    try:
+        generator = data_generator(train, map, image_features, tokenizer, max_length, vocab_size)
+        decoder_model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
+    except StopIteration:
+        break
+    print()  # Add a newline after each epoch
+
+
+Model.save(decoder_model, 'decoder_model.h5')
+print("Saved model to disk")
+with open('tokenizer.pkl', 'wb') as f:
+    pickle.dump(tokenizer, f)
+print("Saved tokenizer to disk")

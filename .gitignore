@@ -4,3 +4,7 @@
 .toc
 .tex
 .txt
+src/decodeOut.txt
+src/output.txt
+src/.6B.zip/
+src/glove_embeddings/

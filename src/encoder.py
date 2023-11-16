@@ -10,7 +10,7 @@ import numpy as np
 # Load in InceptionV3 Model
 # Documentation for InceptionV3: https://keras.io/api/applications/inceptionv3/
 
-base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(300,300,3))
+base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(224,224,3))
 
 # Remove classification layers
 pooled_output = base_model.layers[-1].output
@@ -41,19 +41,17 @@ for root, dirs, files in os.walk(dataset_dir):
 print(len(image_paths))
 
 # Preprocess and extract features for each image
-features = []
+features_dict = {}
 for img_path in image_paths:
-    img = kimage.load_img(img_path, target_size=(300, 300))
+    img = kimage.load_img(img_path, target_size=(224, 224))
     img_array = kimage.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = img_array / 255.0  # Normalizing pixel values
-    img_features = encoder.predict(img_array)
-    features.append(img_features)
-
-# Concatenate extracted features into a single array
-features = np.concatenate(features, axis=0)
-
-
+    img_array = img_array/255.0
+    img_array = img_array.reshape(1, 224, 224, 3)
+    extracted_features = encoder.predict(img_array)
+    img_id = img_path.split('/')[-1].split('.')[0]
+    features_dict[img_id] = extracted_features
+    
+    
 # Save extracted features via pkl file
 with open('extracted_feats.pkl', 'wb') as f:
-    pickle.dump(features, f)
+    pickle.dump(features_dict, f)
