@@ -12,7 +12,7 @@ d) Final Project - Image Caption Generator
 
 ## Replicating Findings
 
-Refer to the proposal pdf document to understand overarching architecture and approach. 
+Refer to the proposal pdf document, that is linked at the bottom of this README, to understand overarching architecture and approach. 
 
 ## Important Prequisities
 
