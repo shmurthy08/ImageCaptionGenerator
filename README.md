@@ -6,7 +6,7 @@ a) Shree Murthy, Dylan Inafuku, Rahul Sura
 
 b) shmurthy@chapman.edu, dinafuku@chapman.edu, sura@chapman.edu
 
-c) 393-02
+c) CPSC 393-02
 
 d) Final Project - Image Caption Generator
 
@@ -17,6 +17,7 @@ Refer to the proposal pdf document to understand overarching architecture and ap
 ## Important Prequisities
 
 Download the following python libraries:
+NOTE: If pip doesn't work try pip3
 ```
 pip install tensorflow
 
