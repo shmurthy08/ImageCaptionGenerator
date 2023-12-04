@@ -14,9 +14,23 @@ import pickle
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
-
-
+import random
+# BLEU Score Import
 from nltk.translate.bleu_score import corpus_bleu
+import numpy as np
+from tensorflow.keras.preprocessing import image as kimage
+#Feature extraction
+
+
+
+encoder = load_model('encoder.h5')
+def extract_features(image_path):
+    img = kimage.load_img(image_path, target_size=(224, 224))
+    img_array = kimage.img_to_array(img)
+    img_array = img_array/255.0
+    img_array = img_array.reshape(1, 224, 224, 3)
+    extracted_features = encoder.predict(img_array)
+    return extracted_features
 
 
 
@@ -231,7 +245,6 @@ for key, caps in map.items():
 
 # steps = len(train_cap)//128
 # epochs = 35 
-# val_steps=len(test_cap)//128
 
 # for epoch in range(epochs):
 #     print(f"Epoch {epoch + 1}/{epochs}")
@@ -276,30 +289,22 @@ def pred_caption(model, image, tokenizer, max_length):
         y_hat = np.argmax(y_hat)
         word = word_for_id(y_hat, tokenizer)
         if word is None:
-            break
-        
-        
-        
+            break  
         input_txt += ' ' + word
         if word == 'endseq':
             break 
       
     return input_txt
 
-
-# Let's use the test data and assess performance using BLEU Score
-# for k in test:
-#     #get caption
-#     all_caps = map[k]
-#     # predict caption
-#     y_pred = pred_caption(m, image_features[k], tokenizer, max_length)
-#     y_actual = [caption.split() for caption in all_caps]
-#     # calc BLEU score
-#     print(f"BLEU-1: {corpus_bleu(y_actual[0], y_pred, weights=(1.0,0,0))}")
-
-
-
-
+# pred caption for any image passed in; not in dataset
+def pred_caption_any_img(model, img_path, tokenizer, max_length):
+    # find the image using os
+    image_path = os.path.abspath(img_path)
+    
+    # extract features
+    extracted_features = extract_features(image_path)
+    y_pred = pred_caption(model, extracted_features, tokenizer, max_length)
+    return y_pred[9:-7]
 
 def gener_caption(image_name):
     image_id = image_name.split('.')[0]
@@ -312,6 +317,55 @@ def gener_caption(image_name):
     
     print(y_pred[9:-7])
     # plt.imshow(img)
+
+    
+#gener_caption('3712008738_1e1fa728da.jpg')
+
+
+
+# Now let's calculate the BLEU Score for the model
+# Use the test set to evaluate the model
+def evaluate_model(model, captions, features, tokenizer, max_length, num):
+    actual, predicted = list(), list()
+    for key, caps in captions.items():
+        y_pred = pred_caption(model, features[key], tokenizer, max_length)
+        references = [d.split() for d in caps]
+        actual.append(references)
+        predicted.append(y_pred.split())
+        for i in range(len(caps)):
+            print('Image ID: %s\nActual caption: %s\nPredicted caption: %s\n' % (key, caps[i], y_pred))
+    # BLEU Score Evaluation
+    print('BLEU-1: %f' % corpus_bleu(actual, predicted, weights=(1.0, 0, 0, 0)))
+    print('BLEU-2: %f' % corpus_bleu(actual, predicted, weights=(0.5, 0.5, 0, 0)))
+    print('BLEU-3: %f' % corpus_bleu(actual, predicted, weights=(0.3, 0.3, 0.3, 0)))
+    print('BLEU-4: %f' % corpus_bleu(actual, predicted, weights=(0.25, 0.25, 0.25, 0.25)))
+        
+
+test = img_ids[split:]
+#lets take only 10 images for testing
+
+
+def num_of_imgs(num):
+    # Gather random images form the test set
+    random_test = random.sample(test, num)
+    #print(test)
+    test_captions = {}
+    for key in random_test:
+        test_captions[key] = map[key]
+    evaluate_model(model, test_captions, image_features, tokenizer, max_length, num)
     
     
-gener_caption('3712008738_1e1fa728da.jpg')
+    
+
+# Main function
+if __name__ == '__main__':
+    # Two cases: One to test using num_of_imgs, second case to pass in their own image path
+    # Case statements:
+    
+    response = input("Hi Welcome to our image caption generator model. Would you like to test our model using our test set? (y/n): ")
+    if response == 'y':
+        num = input("How many images would you like to test? (1-10): ")
+        num_of_imgs(int(num))
+    else:
+        img_path = input("Please enter the image path: ")
+        print(pred_caption_any_img(model, img_path, tokenizer, max_length))

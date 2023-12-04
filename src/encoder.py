@@ -55,3 +55,6 @@ for img_path in image_paths:
 # Save extracted features via pkl file
 with open('extracted_feats.pkl', 'wb') as f:
     pickle.dump(features_dict, f)
+
+
+encoder.save('encoder.h5')
