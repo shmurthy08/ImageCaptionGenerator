@@ -345,6 +345,15 @@ def evaluate_model(model, captions, features, tokenizer, max_length, num):
         predicted.append(y_pred.split())
         for i in range(len(caps)):
             print('Image ID: %s\nActual caption: %s\nPredicted caption: %s\n' % (key, caps[i], y_pred))
+        # Make a figure with subplots to hold the image and caption
+        fig, axs = plt.subplots(1, 1, figsize=(8, 8))
+        img_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', 'Flicker8k', 'Images', key + '.jpg')
+        axs.imshow(Image.open(img_path))
+        axs.axis('off')
+        axs.set_title(y_pred[9:-7], fontsize=12, ha='center')
+        plt.tight_layout()
+        plt.savefig(f'{key}_Prediction.png')
+        plt.show()
     # BLEU Score Evaluation
     print('BLEU-1: %f' % corpus_bleu(actual, predicted, weights=(1.0, 0, 0, 0)))
     print('BLEU-2: %f' % corpus_bleu(actual, predicted, weights=(0.5, 0.5, 0, 0)))
@@ -375,8 +384,10 @@ if __name__ == '__main__':
     
     response = input("Hi Welcome to our image caption generator model. Would you like to test our model using our test set? (y/n): ")
     if response == 'y':
+        print()
         num = input("How many images would you like to test? (1-10): ")
         num_of_imgs(int(num))
     else:
+        print()
         img_path = input("Please enter the image path: ")
         print(pred_caption_any_img(model, img_path, tokenizer, max_length))
