@@ -304,6 +304,17 @@ def pred_caption_any_img(model, img_path, tokenizer, max_length):
     # extract features
     extracted_features = extract_features(image_path)
     y_pred = pred_caption(model, extracted_features, tokenizer, max_length)
+    # Make a fig, axs that holds the image and the caption
+    
+    # Make a figure with subplots to hold the image and caption
+    fig, axs = plt.subplots(1, 1, figsize=(8, 8))
+    axs.imshow(Image.open(image_path))
+    axs.axis('off')
+    axs.set_title(y_pred[9:-7], fontsize=12, ha='center')
+    
+    plt.tight_layout()
+    plt.savefig(f'{img_path}_Prediction.png')
+    plt.show()
     return y_pred[9:-7]
 
 def gener_caption(image_name):
