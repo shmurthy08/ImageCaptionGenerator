@@ -10,6 +10,16 @@ c) CPSC 393-02
 
 d) Final Project - Image Caption Generator
 
+## Running project
+
+To run this project it is very simple:
+
+```
+python3 decoder.py
+```
+Follow the prompts as they arise. If you are planning on using images that aren't in the dataset please upload them to the repositories src/ directory and then pass in the name of the png file.
+Ex: If I have a file named play-in-park.png then that file must exist in my src/ folder and when I'm prompted to provide an image I will pass in the name `play-in-park.png`
+
 ## Replicating Findings
 
 Refer to the proposal pdf document, that is linked at the bottom of this README, to understand overarching architecture and approach. 
