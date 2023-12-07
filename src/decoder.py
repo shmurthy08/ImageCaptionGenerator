@@ -202,14 +202,14 @@ for key, caps in map.items():
 
 
 
-# # Combining GloVe with our caption embeddings
-# embedding_dim = len(glove_embeddings['a'])
-# embed_matrix = np.zeros((vocab_size, embedding_dim))
+# Combining GloVe with our caption embeddings
+embedding_dim = len(glove_embeddings['a'])
+embed_matrix = np.zeros((vocab_size, embedding_dim))
 
-# for word, index in tokenizer.word_index.items():
-#     embedding_vec = glove_embeddings.get(word)
-#     if embedding_vec is not None:
-#         embed_matrix[index] = embedding_vec
+for word, index in tokenizer.word_index.items():
+    embedding_vec = glove_embeddings.get(word)
+    if embedding_vec is not None:
+        embed_matrix[index] = embedding_vec
         
 
 # print("Image Features Shape: ", len(image_features))
