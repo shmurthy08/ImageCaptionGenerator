@@ -17,7 +17,7 @@ pooled_output = base_model.layers[-1].output
 encoded_features = GlobalAveragePooling2D()(pooled_output)
 
 # Create updated model w/o classification layers
-encoder = Model(inputs=base_model.input, outputs=encoded_features)
+feature_extraction = Model(inputs=base_model.input, outputs=encoded_features)
 
 # Freeze layers in base model
 for layer in base_model.layers:
@@ -37,7 +37,6 @@ for root, dirs, files in os.walk(dataset_dir):
             image_paths.append(os.path.join(root, file))
 
 
-#print(image_paths)
 print(len(image_paths))
 
 # Preprocess and extract features for each image
@@ -47,7 +46,7 @@ for img_path in image_paths:
     img_array = kimage.img_to_array(img)
     img_array = img_array/255.0
     img_array = img_array.reshape(1, 224, 224, 3)
-    extracted_features = encoder.predict(img_array)
+    extracted_features = feature_extraction.predict(img_array)
     img_id = img_path.split('/')[-1].split('.')[0]
     features_dict[img_id] = extracted_features
     
@@ -56,5 +55,5 @@ for img_path in image_paths:
 with open('extracted_feats.pkl', 'wb') as f:
     pickle.dump(features_dict, f)
 
-
-encoder.save('encoder.h5')
+# Save Model
+feature_extraction.save('encoder.h5')
