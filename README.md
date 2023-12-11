@@ -41,6 +41,24 @@ pip install tensorflow
 pip install pickle
 ```
 
+## Contributions
+
+Shree Murthy:
+- Created the .py files for the project and created the main encoder/decoder model 
+- Typed up the Proposal and Final Report with assistance from Dylan and Rahul
+
+Rahul Sura:
+- Helped find resources to build the encoder/decoder model 
+- Helped Shree with the Proposal and Final Report
+- Debugged the Code
+- Wrote the Image Extraction Feature using InceptionV3
+
+Dylan Inafuku:
+- Helped create the feature that accepts any image to be inputted and captioned
+- Helped Shree with the Proposal and Final Report
+- Created the README.md file and Final Presenation slidedeck 
+- Found the GloVe embedding file(s) and helped implement it into the model
+
 
 ## Important Links 
 - [Proposal](https://github.com/shmurthy08/ImageCaptionGenerator/blob/main/proposal.pdf)

@@ -1,0 +1,15 @@
+---
+title: "Image Caption Generator"
+author: "Shree Murthy, Rahul Sura, Dylan Inafuku"
+date: "12/16/2023"
+format:
+  pdf:
+    fig-pos: 'h'
+    highlight-style: github   
+toc: true
+toc-depth: 3
+toc-title: Table of Contents
+---
+
+# 1. Introduction
+
