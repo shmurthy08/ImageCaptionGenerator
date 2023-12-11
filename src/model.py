@@ -271,6 +271,16 @@ with open('tokenizer.pkl', 'rb') as f:
     
     
 def word_for_id(integer, tokenizer):
+    """
+    Retrieves the word corresponding to the given integer index from the tokenizer's word index.
+
+    Parameters:
+    integer (int): The integer index of the word.
+    tokenizer (Tokenizer): The tokenizer object containing the word index.
+
+    Returns:
+    str or None: The word corresponding to the given integer index, or None if not found.
+    """
     for word, index in tokenizer.word_index.items():
         if index == integer:
             return word
@@ -279,6 +289,18 @@ def word_for_id(integer, tokenizer):
 
 
 def pred_caption(model, image, tokenizer, max_length):
+    """
+    Generate a caption for an image using a given model, tokenizer, and maximum length.
+
+    Parameters:
+    - model: The image captioning model.
+    - image: The input image.
+    - tokenizer: The tokenizer used to encode the input text.
+    - max_length: The maximum length of the generated caption.
+
+    Returns:
+    - The generated caption for the image.
+    """
     input_txt = 'startseq'
     for i in range(max_length):
         #encode input
@@ -298,6 +320,18 @@ def pred_caption(model, image, tokenizer, max_length):
 
 # pred caption for any image passed in; not in dataset
 def pred_caption_any_img(model, img_path, tokenizer, max_length):
+    """
+    Generates a caption for an image using a pre-trained model.
+
+    Args:
+        model (object): The pre-trained model used for caption generation.
+        img_path (str): The path to the image file.
+        tokenizer (object): The tokenizer used for tokenizing the caption.
+        max_length (int): The maximum length of the generated caption.
+
+    Returns:
+        str: The generated caption for the image.
+    """
     # find the image using os
     image_path = os.path.abspath(img_path)
     
@@ -317,26 +351,23 @@ def pred_caption_any_img(model, img_path, tokenizer, max_length):
     plt.show()
     return y_pred[9:-7]
 
-def gener_caption(image_name):
-    image_id = image_name.split('.')[0]
-    img_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', 'Flicker8k', 'Images', image_name)
-    img = Image.open(img_path)
-    captions = map[image_id]
-    for cap in captions:
-        print(cap)
-    y_pred = pred_caption(model, image_features[image_id], tokenizer, max_length)
-    
-    print(y_pred[9:-7])
-    # plt.imshow(img)
-
-    
-#gener_caption('3712008738_1e1fa728da.jpg')
-
-
-
 # Now let's calculate the BLEU Score for the model
 # Use the test set to evaluate the model
 def evaluate_model(model, captions, features, tokenizer, max_length, num):
+    """
+    Evaluate the image captioning model by generating captions for images and calculating BLEU scores.
+
+    Args:
+        model (object): The trained image captioning model.
+        captions (dict): A dictionary containing image IDs as keys and corresponding captions as values.
+        features (dict): A dictionary containing image IDs as keys and corresponding image features as values.
+        tokenizer (object): The tokenizer used to tokenize the captions.
+        max_length (int): The maximum length of the generated captions.
+        num (int): The number of images to evaluate.
+
+    Returns:
+        None
+    """
     actual, predicted = list(), list()
     for key, caps in captions.items():
         y_pred = pred_caption(model, features[key], tokenizer, max_length)
@@ -366,6 +397,15 @@ test = img_ids[split:]
 
 
 def num_of_imgs(num):
+    """
+    Selects a specified number of random images from the test set and evaluates the model on them.
+
+    Args:
+        num (int): The number of random images to select from the test set.
+
+    Returns:
+        None
+    """
     # Gather random images form the test set
     random_test = random.sample(test, num)
     #print(test)
