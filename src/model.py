@@ -209,54 +209,54 @@ for word, index in tokenizer.word_index.items():
         embed_matrix[index] = embedding_vec
         
 
-# # Define encoder model
-# inputs1 = Input(shape=(2048,))
-# fe1 = BatchNormalization()(inputs1)
-# fe2 = Dense(256, activation='relu')(fe1)
+# Define encoder model
+inputs1 = Input(shape=(2048,))
+fe1 = BatchNormalization()(inputs1)
+fe2 = Dense(256, activation='relu')(fe1)
 
-# # Seq feature layer
-# inputs2 = Input(shape=(max_length,))
-# se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
-# se2 = LayerNormalization()(se1)
-# se3 = LSTM(256, return_sequences=True)(se2)
-# norm = LayerNormalization()(se3)
-# se4 = LSTM(256)(norm)
-# norm2 = LayerNormalization()(se4)
+# Seq feature layer
+inputs2 = Input(shape=(max_length,))
+se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
+se2 = LayerNormalization()(se1)
+se3 = LSTM(256, return_sequences=True)(se2)
+norm = LayerNormalization()(se3)
+se4 = LSTM(256)(norm)
+norm2 = LayerNormalization()(se4)
 
-# # Decoder model
-# decoder1 = add([fe2, norm2])
-# norm3 = LayerNormalization()(decoder1)
-# decoder2 = Dense(256, activation='relu')(norm3)
-# outputs = Dense(vocab_size, activation='softmax')(decoder2)
+# Decoder model
+decoder1 = add([fe2, norm2])
+norm3 = LayerNormalization()(decoder1)
+decoder2 = Dense(256, activation='relu')(norm3)
+outputs = Dense(vocab_size, activation='softmax')(decoder2)
 
-# # Tie it together
-# decoder_model = Model(inputs=[inputs1, inputs2], outputs=outputs)
-# decoder_model.summary()
-# plot_model(decoder_model, to_file='complete_arch.png', show_shapes=True)
+# Tie it together
+decoder_model = Model(inputs=[inputs1, inputs2], outputs=outputs)
+decoder_model.summary()
+plot_model(decoder_model, to_file='complete_arch.png', show_shapes=True)
 
-# # Compile the model
-# decoder_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-
-# steps = len(train_cap)//128
-# epochs = 35 
-
-# for epoch in range(epochs):
-#     print(f"Epoch {epoch + 1}/{epochs}")
-#     try:
-#         generator = data_generator(train, map, image_features, tokenizer, max_length, vocab_size)
-#         decoder_model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
-#         decoder_model.save('model.h5')
-#         print(f"Saved model on epoch: {epoch +1}")
-#     except StopIteration:
-#         break
-#     print()  # Add a newline after each epoch
+# Compile the model
+decoder_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 
-# print("Saved model to disk")
-# with open('tokenizer.pkl', 'wb') as f:
-#     pickle.dump(tokenizer, f)
-# print("Saved tokenizer to disk")
+steps = len(train_cap)//128
+epochs = 35 
+
+for epoch in range(epochs):
+    print(f"Epoch {epoch + 1}/{epochs}")
+    try:
+        generator = data_generator(train, map, image_features, tokenizer, max_length, vocab_size)
+        decoder_model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
+        decoder_model.save('model.h5')
+        print(f"Saved model on epoch: {epoch +1}")
+    except StopIteration:
+        break
+    print()  # Add a newline after each epoch
+
+
+print("Saved model to disk")
+with open('tokenizer.pkl', 'wb') as f:
+    pickle.dump(tokenizer, f)
+print("Saved tokenizer to disk")
 
 
 
