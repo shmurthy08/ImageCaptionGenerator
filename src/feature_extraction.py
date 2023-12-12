@@ -56,4 +56,4 @@ with open('extracted_feats.pkl', 'wb') as f:
     pickle.dump(features_dict, f)
 
 # Save Model
-feature_extraction.save('encoder.h5')
+feature_extraction.save('features.h5')

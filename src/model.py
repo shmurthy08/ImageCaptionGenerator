@@ -23,13 +23,13 @@ from tensorflow.keras.preprocessing import image as kimage
 
 
 
-encoder = load_model('encoder.h5')
+features = load_model('features.h5')
 def extract_features(image_path):
     img = kimage.load_img(image_path, target_size=(224, 224))
     img_array = kimage.img_to_array(img)
     img_array = img_array/255.0
     img_array = img_array.reshape(1, 224, 224, 3)
-    extracted_features = encoder.predict(img_array)
+    extracted_features = features.predict(img_array)
     return extracted_features
 
 
@@ -196,9 +196,6 @@ for key, caps in map.items():
     else:
         [test_cap.append(cap) for cap in caps]
 
-# print(train_cap)
-# print(test_cap)
-
 
 
 
@@ -212,56 +209,54 @@ for word, index in tokenizer.word_index.items():
         embed_matrix[index] = embedding_vec
         
 
-# print("Image Features Shape: ", len(image_features))
+# # Define encoder model
+# inputs1 = Input(shape=(2048,))
+# fe1 = BatchNormalization()(inputs1)
+# fe2 = Dense(256, activation='relu')(fe1)
 
-# Define encoder model
-inputs1 = Input(shape=(2048,))
-fe1 = BatchNormalization()(inputs1)
-fe2 = Dense(256, activation='relu')(fe1)
+# # Seq feature layer
+# inputs2 = Input(shape=(max_length,))
+# se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
+# se2 = LayerNormalization()(se1)
+# se3 = LSTM(256, return_sequences=True)(se2)
+# norm = LayerNormalization()(se3)
+# se4 = LSTM(256)(norm)
+# norm2 = LayerNormalization()(se4)
 
-# Seq feature layer
-inputs2 = Input(shape=(max_length,))
-se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
-se2 = LayerNormalization()(se1)
-se3 = LSTM(256, return_sequences=True)(se2)
-norm = LayerNormalization()(se3)
-se4 = LSTM(256)(norm)
-norm2 = LayerNormalization()(se4)
+# # Decoder model
+# decoder1 = add([fe2, norm2])
+# norm3 = LayerNormalization()(decoder1)
+# decoder2 = Dense(256, activation='relu')(norm3)
+# outputs = Dense(vocab_size, activation='softmax')(decoder2)
 
-# Decoder model
-decoder1 = add([fe2, norm2])
-norm3 = LayerNormalization()(decoder1)
-decoder2 = Dense(256, activation='relu')(norm3)
-outputs = Dense(vocab_size, activation='softmax')(decoder2)
+# # Tie it together
+# decoder_model = Model(inputs=[inputs1, inputs2], outputs=outputs)
+# decoder_model.summary()
+# plot_model(decoder_model, to_file='complete_arch.png', show_shapes=True)
 
-# Tie it together
-decoder_model = Model(inputs=[inputs1, inputs2], outputs=outputs)
-decoder_model.summary()
-plot_model(decoder_model, to_file='complete_arch.png', show_shapes=True)
-
-# Compile the model
-decoder_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+# # Compile the model
+# decoder_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 
-steps = len(train_cap)//128
-epochs = 35 
+# steps = len(train_cap)//128
+# epochs = 35 
 
-for epoch in range(epochs):
-    print(f"Epoch {epoch + 1}/{epochs}")
-    try:
-        generator = data_generator(train, map, image_features, tokenizer, max_length, vocab_size)
-        decoder_model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
-        decoder_model.save('model.h5')
-        print(f"Saved model on epoch: {epoch +1}")
-    except StopIteration:
-        break
-    print()  # Add a newline after each epoch
+# for epoch in range(epochs):
+#     print(f"Epoch {epoch + 1}/{epochs}")
+#     try:
+#         generator = data_generator(train, map, image_features, tokenizer, max_length, vocab_size)
+#         decoder_model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
+#         decoder_model.save('model.h5')
+#         print(f"Saved model on epoch: {epoch +1}")
+#     except StopIteration:
+#         break
+#     print()  # Add a newline after each epoch
 
 
-print("Saved model to disk")
-with open('tokenizer.pkl', 'wb') as f:
-    pickle.dump(tokenizer, f)
-print("Saved tokenizer to disk")
+# print("Saved model to disk")
+# with open('tokenizer.pkl', 'wb') as f:
+#     pickle.dump(tokenizer, f)
+# print("Saved tokenizer to disk")
 
 
 
