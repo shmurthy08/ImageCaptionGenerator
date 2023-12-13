@@ -21,7 +21,50 @@ Alt text is a short description of an image that is used by screen readers to de
 
 # 2. Analysis
 
+This section aims to discuss the dataset, data cleaning, and preprocessing. The dataset, again, will be the [Flickr8k dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k). This section will also conduct some Exploratory Data Analysis (EDA) to help understand the pictures in the dataset as well as the format of the captions.
+
+Note: The [original creators](https://hockenmaier.cs.illinois.edu/8k-pictures.html) provided a public domain license to enable anyone to reference the Flickr8k Dataset
+
+
+## 2.1 Flicker8k Dataset
+
+The dataset contains ~8000 images of various different stock images. These images have ~5 captions attached with them (located in the captions.txt file). First let's start by examining the images in the dataset. 
+
+### 2.1.1. Dataset's Images
+
+Below are the randomly sampled images from the dataset:
+
+\newpage
+![Flickr8k Images](https://cdn.discordapp.com/attachments/1031350086191566899/1184331040161005690/image.png?ex=658b953b&is=6579203b&hm=709aa5388d0a3022fbaff2ec7b0c8ab48ed74ba806956577292ccb08d569e419& width=300px)
+
+Based on the images above we can notice a few things. We notice a lot of pictures were taken outdoors (either in nature or in the city). This indicates that the model is mostly going to learn about the outdoor environment and related features, such as grass, buildings, the sky, and more. Furthermore, we notice a decent number of the images had animals. While this may not be accurate across the entire dataset, it is still vital information because it informs us that the dataset has variety when it comes to what's being depicted. The model shouldn't be biased to just humans, it requires a diverse set of information to help train it effectively and ensure it is knowledgeable about all of our world's features. Also, the images are augmented differently, they are all different shapes and sizes (some vertical and some horizontal). Moreover, the pictures have some blurry backgrounds and are taken during different seasons of the year, such as the one taken in the snowy terrain. 
+
+
+### 2.1.2. Dataset's Captions
+
+Now, let's analyze the structure of the image captions. These captions are located in the captions.txt file and have at least 5 captions per image in the dataset. Below is a table with 5 random captions.
+
+| **Image**   |      **Caption**      |
+|----------|-------------|
+| 1000268201_693b08cb0e.jpg | A child in a pink dress is climbing up a set of stairs in an entry way . |
+| 1000268201_693b08cb0e.jpg | A girl going into a wooden building .|
+| 1003163366_44323f5815.jpg | a man sleeping on a bench outside with a white and black dog sitting next to him . |
+| 1012212859_01547e3f17.jpg | "A dog shakes its head near the shore , a red ball next to it ." |
+| 1287475186_2dee85f1a5.jpg | Little boy sitting in water with a fountain coming up through his lap . |
+| 1287475186_2dee85f1a5.jpg | A boy sitting in water . |
+
+Based on the image captions above we can see there is a lot of variation happening, meaning there will be a decent amount of data cleaning taking place before we tokenize the captions. First we notice the captions aren't standardized, i.e they aren't all starting with capital letters, some have quotes and the others don't. This indicates that there wasn't much emphasis placed on creating standardized captions, rather they placed them into the document without any cleaning. Furthermore, the lengths of the captions are of varying degrees. Some are really short, such as the second caption and last caption. The differing lengths are extremely useful for our problem statement, we don't want captions to 'over stay their welcome.' Essentially, we want the captions to be short and detailed to ensure the features of the image are explained properly without any loss in information.  
+
+## 2.2 Data Cleaning
+
+For data cleaning our outline was very clear. We didn't want a lot of noise with the actual words itself which may create a scrambled caption. We knew that our model wasn't going to create great captions, but we could at least make sure that the semantics of the caption itself (i.e. misplaced punctuation) could be kept at a minimum. The first step we took in isolating the captions was to create a dictionary with the keys being set to the image ids (i.e the filename(s)) and the values were set to the caption for that image id. The goal was to ensure that we can have a safe and secure way to just analyze the captions and not influence the model by passing in the image ids. The next step was to clean up the captions, essentially standardize, the words. This was achieved by our data cleaning function in the `model.py` file called `cleaning`. The method took a dictionary of image names and their corresponding captions, and then did miscellaneous things to it. Some of those things include removing punctuation, as mentioned, as well as making all the words lower case, trimming surrounding spaces. This will lessen the bias the model will have towards certain words and characters.
+
+
 # 3. Methods
+
+## 3.1 Preprocessing
+
+One of the preprocessing steps, inspired from our CPSC-393 classwork, was adding two custom tokens/tags for each caption. Towards the beginning of the caption, we would add something called `'startseq '` and at the end, we would add `' endseq'`, still following the standardization conventions mentioned for the sake of consistency. These two tags enabled us to help train the model in order to recognize that at the beginning of the sequence, there is a logic-sounding start, and at the end of the sequence, there is a logical end. This mitigates the chances of the model generating a caption that starts or ends with something like the word "and". Since every single caption prepended and appended these two custom tokens uniformly, it reinforced the model to understand the start and end a little better.
 
 # 4. Results
 
