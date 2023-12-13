@@ -99,3 +99,7 @@ Dylan Inafuku:
 - Created the README.md file and Final Presenation slidedeck 
 - Found the GloVe embedding file(s) and helped implement it into the model
 
+
+## Errors
+
+- No compiler or other errors (everything ran/compiled)
