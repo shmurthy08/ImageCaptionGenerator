@@ -10,6 +10,13 @@ c) CPSC 393-02
 
 d) Final Project - Image Caption Generator
 
+## Important Links 
+- [Report](report/Report.pdf)
+- [Proposal](proposal/Proposal.pdf)
+- [Code](src/)
+- [Flicker8k Kaggle Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
+- [Flicker Source Documentation](https://hockenmaier.cs.illinois.edu/8k-pictures.html)
+
 ## Running project
 
 Download the Flicker8k Kaggle Dataset and place it in the src/ directory:
@@ -18,19 +25,22 @@ Download the Flicker8k Kaggle Dataset and place it in the src/ directory:
 If you need to run the feature extraction model then run:
 
 ```
-python3 feature_extraction.py
+python3 src/feature_extraction.py
 ```
 
 
 Download this GloVe embedding file and place it in the src/:
 
 - [GloVe Embedding File](http://nlp.stanford.edu/data/glove.6B.zip)
-- After downloading the file, unzip it using the glove_unzip.py file in the src/ directory
+- After downloading the file, unzip it using the glove_unzip.py file in the src/ directory by running:
+```
+python3 src/glove_unzip.py
+```
 
 To run this project it is very simple:
 
 ```
-python3 model.py
+python3 src/model.py
 ```
 
 Follow the prompts as they arise. If you are planning on using images that aren't in the dataset please upload them to the repositories src/ directory and then pass in the name of the png file.
@@ -78,8 +88,3 @@ Dylan Inafuku:
 - Created the README.md file and Final Presenation slidedeck 
 - Found the GloVe embedding file(s) and helped implement it into the model
 
-
-## Important Links 
-- [Proposal](https://github.com/shmurthy08/ImageCaptionGenerator/blob/main/proposal.pdf)
-- [Flicker8k Kaggle Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
-- [Flicker Source Documentation](https://hockenmaier.cs.illinois.edu/8k-pictures.html)
