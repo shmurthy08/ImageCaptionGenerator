@@ -23,13 +23,13 @@ from tensorflow.keras.preprocessing import image as kimage
 
 
 
-encoder = load_model('encoder.h5')
+features = load_model('features.h5')
 def extract_features(image_path):
     img = kimage.load_img(image_path, target_size=(224, 224))
     img_array = kimage.img_to_array(img)
     img_array = img_array/255.0
     img_array = img_array.reshape(1, 224, 224, 3)
-    extracted_features = encoder.predict(img_array)
+    extracted_features = features.predict(img_array)
     return extracted_features
 
 
@@ -196,9 +196,6 @@ for key, caps in map.items():
     else:
         [test_cap.append(cap) for cap in caps]
 
-# print(train_cap)
-# print(test_cap)
-
 
 
 
@@ -211,8 +208,6 @@ for word, index in tokenizer.word_index.items():
     if embedding_vec is not None:
         embed_matrix[index] = embedding_vec
         
-
-# print("Image Features Shape: ", len(image_features))
 
 # Define encoder model
 inputs1 = Input(shape=(2048,))
