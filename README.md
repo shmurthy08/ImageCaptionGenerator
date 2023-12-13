@@ -12,6 +12,16 @@ d) Final Project - Image Caption Generator
 
 ## Running project
 
+Download the Flicker8k Kaggle Dataset and place it in the src/ directory:
+- Dataset is linked at bottom of this README
+
+If you need to run the feature extraction model then run:
+
+```
+python3 feature_extraction.py
+```
+
+
 Download this GloVe embedding file and place it in the src/:
 
 - [GloVe Embedding File](http://nlp.stanford.edu/data/glove.6B.zip)
@@ -28,15 +38,6 @@ Ex: If I have a file named play-in-park.png then that file must exist in my src/
 
 If you would like a demo here is a link:
 [Video](https://clipchamp.com/watch/t6sN1LIRw4v)
-
-
-If you need to run the feature extraction model then run:
-
-```
-
-python3 feature_extraction.py
-
-```
 
 
 ## Replicating Findings

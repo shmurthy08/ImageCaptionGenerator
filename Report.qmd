@@ -17,7 +17,8 @@ This report aims to discuss the model building and evaluation of an Image Captio
 
 ## 1.1. Alt Text
 
-Alt text is a short description of an image that is used by screen readers to describe images to visually impaired people. The goal is to make the internet more accessible and useable for everyone.  
+Alt text is a short description of an image that is used by screen readers to describe images to visually impaired people. The goal is to make the internet more accessible and useable for everyone. HubSpot has a great article on how to write alt text for images. It explains that alt text should be short yet descriptive. The  
+
 
 
 # 2. Analysis
@@ -29,3 +30,5 @@ Alt text is a short description of an image that is used by screen readers to de
 # 5. Reflection
 
 # 6. References
+
+1. HubSpot. [HubSpot](https://blog.hubspot.com/marketing/image-alt-text)
