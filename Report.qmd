@@ -13,6 +13,13 @@ toc-title: Table of Contents
 
 # 1. Introduction
 
+This report aims to discuss the model building and evaluation of an Image Caption Generator trained on the Flicker 8k Dataset. The goal of this model is to take in an image and generate a caption that describes the image. This model is built using an Encoder/Decoder structure. The motivation for this model is to develop a model that can help create "Alt Text" to help visually impaired people understand images on the internet. This model can also be used to help people who are learning a new language understand the meaning of an image. 
+
+## 1.1. Alt Text
+
+Alt text is a short description of an image that is used by screen readers to describe images to visually impaired people. The goal is to make the internet more accessible and useable for everyone.  
+
+
 # 2. Analysis
 
 # 3. Methods

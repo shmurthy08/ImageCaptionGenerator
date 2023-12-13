@@ -15,8 +15,18 @@ d) Final Project - Image Caption Generator
 To run this project it is very simple:
 
 ```
-python3 decoder.py
+python3 model.py
 ```
+
+If you need to run the feature extraction model then run:
+
+```
+
+python3 feature_extraction.py
+
+```
+
+
 Follow the prompts as they arise. If you are planning on using images that aren't in the dataset please upload them to the repositories src/ directory and then pass in the name of the png file.
 Ex: If I have a file named play-in-park.png then that file must exist in my src/ folder and when I'm prompted to provide an image I will pass in the name `play-in-park.png`
 
