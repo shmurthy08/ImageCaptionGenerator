@@ -12,6 +12,11 @@ d) Final Project - Image Caption Generator
 
 ## Running project
 
+Download this GloVe embedding file and place it in the src/:
+
+- [GloVe Embedding File](http://nlp.stanford.edu/data/glove.6B.zip)
+- After downloading the file, unzip it using the glove_unzip.py file in the src/ directory
+
 To run this project it is very simple:
 
 ```
