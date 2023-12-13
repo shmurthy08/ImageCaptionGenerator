@@ -16,4 +16,8 @@ Flicker8k
 *.zip
 *.log
 *.tex
+*.aux
+*.toc
 Report_files
+best_img.png
+worst_img.png

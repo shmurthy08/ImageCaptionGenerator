@@ -10,7 +10,7 @@ toc: true
 toc-depth: 3
 toc-title: Table of Contents
 ---
-
+\newpage
 # 1. Introduction
 
 This report aims to discuss the model building and evaluation of an Image Caption Generator trained on the Flickr 8k Dataset. The goal of this model is to take in an image and generate a caption that describes the image. This model is built using an Encoder/Decoder structure. The motivation for this model is to develop a model that can help create "Alt Text" to help visually impaired people understand images on the internet. This model can also be used to help people who are learning a new language understand the meaning of an image. 
@@ -154,7 +154,42 @@ We tried using Dropout layers; however, this didn't adjust the accuracy of the m
 
 # 4. Results
 
+This section aims to discuss the results of the model. First let's analyze the loss and accuracy for the training set. The model was split 80/20 for the training and testing set. The model was trained for 35 epochs using the Adam optimizer and a categorical_crossentropy loss function. We chose categorical_crossentropy because we are dealing with the probability of the next word in the sequence. When predicting the next word in a sequence, the goal is to generate a probability distribution over the vocabulary and pick the word with the highest probability. Categorical crossentropy loss helps the model learn to generate these probabilities more accurately based on the context of the preceding words in the sequence.
 
+## 4.1 Training Loss and Accuracy
+
+| Metric         | Training Set |
+|----------------|--------------|
+| Loss           | 0.2735       | 
+| Accuracy       | 0.9052       |
+
+The training loss and accuracy are very good. With the low loss and high accuracy it means the model can predict the next word with satisfcatory results. This is a good sign because it means the model is learning the features from the images and the captions. However, when we test the model with the testing set OR random images that aren't in the dataset at all it is important to evaluate the results based on the sentence structure and the semantics of the caption.
+
+## 4.2 Testing Results
+
+To test the model we created a method that asks the user to provide a number 1-10 (while there are 1600 images in the test set we limited the options to 10 for efficiency purposes). We tested the model using human analysis and BLEU score. BLEU score is a metric used to evaluate the quality of machine translated text. The higher the BLEU score the better the translation. The BLEU score is calculated by comparing the machine translated text to the human translated text. The score is calculated by comparing the n-grams of the machine translated text to the n-grams of the human translated text. To get a broad range of BLEU score results we tested it using 1-gram, 2-gram, 3-gram, and 4-gram. 
+
+We tested this feature by running it on 10 images. Below are the images with the best and worst outcome as well the BLEU score for the overall iteration we tested on.
+
+\newpage
+![Best Image](src/best_img.png){width="300px"}
+
+\newpage
+![Worst Image](src/worst_img.png){width="300px"}
+
+| Metric         | BLEU Score |
+|----------------|--------------|
+| 1-gram           | 0.547170       |
+| 2-gram           | 0.329081       |
+| 3-gram           | 0.218637       |
+| 4-gram           | 0.0000       |
+
+
+The captions generated showcase the best and worst that the model is able to showcase. For the first picture is was spot on and determined the caption correctly based on the features and the activity. However, for the second one it completely misses the mark and assumes people are in a picture who aren't even present within the picture (it looks like an animal race of some sort). This goes to show that while the training model was effective, it still has a lot of room for improvement. While these are the extreme cases, most of the generated captions were in in-between these two extremes. Most of the images accurately predicted the main topic (i.e a child or an animal doing some task); however, it failed at noticing key events in the background to project the full context. This could be a limitation of the model's training not showcasing these events since a lot of these images are unique and there aren't many events that re-present themselves in the dataset (ex: the Worst Image image is a unique event that may not have been captured in the dataset in augmented ways). Using human analysis we can tell that the captions aren't an ideal representation of the image but most of the time it is able to judge and capture some of the vital features of the image. 
+
+The BLEU score also showcases this, the 1-gram BLEU score is decent, but as the n-gram increases the score decreases. This indicates that as the sequence continues it isn't able to effectively predict the next word. However, BLEU score isn't designed to capture the semantic meaning of the original sequence and the generated sequence. Hence, we used human analysis to determine the effectiveness of the model. In the future, metrics such as METEOR or CIDr could be used since they account better for semantic meaning. Nevertheless, the BLEU score was a solid indicator if the model was able to generate words that were on topic for the image. 
+
+Overall, the model didn't blow us away with the generated captions; however, based on limitations of the dataset we feel this is a satisfactory conclusion for our initial efforts. This is a great baseline to start with and build upon. 
 
 # 5. Reflection
 
@@ -176,3 +211,4 @@ References are placed in order of appearance in the report.
 3. Flickr8k Dataset. [Flickr8k Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
 4. Hockenmaier, et. al. [Flickr8k Original Authors](https://hockenmaier.cs.illinois.edu/8k-pictures.html)
 5. GloVe Model. [GloVe Model](https://mmuratarat.github.io/2020-03-20/glove)
+6. Batch Normalization vs Layer Normalization. [Understanding Batch Normalization, Layer Normalization and Group Normalization by implementing from scratch](https://www.linkedin.com/pulse/understanding-batch-normalization-layer-group-implementing-pasha-s/)
