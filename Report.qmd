@@ -13,7 +13,7 @@ toc-title: Table of Contents
 
 # 1. Introduction
 
-This report aims to discuss the model building and evaluation of an Image Caption Generator trained on the Flicker 8k Dataset. The goal of this model is to take in an image and generate a caption that describes the image. This model is built using an Encoder/Decoder structure. The motivation for this model is to develop a model that can help create "Alt Text" to help visually impaired people understand images on the internet. This model can also be used to help people who are learning a new language understand the meaning of an image. 
+This report aims to discuss the model building and evaluation of an Image Caption Generator trained on the Flickr 8k Dataset. The goal of this model is to take in an image and generate a caption that describes the image. This model is built using an Encoder/Decoder structure. The motivation for this model is to develop a model that can help create "Alt Text" to help visually impaired people understand images on the internet. This model can also be used to help people who are learning a new language understand the meaning of an image. 
 
 ## 1.1. Alt Text
 
@@ -26,7 +26,7 @@ This section aims to discuss the dataset, data cleaning, and preprocessing. The 
 Note: The [original creators](https://hockenmaier.cs.illinois.edu/8k-pictures.html) provided a public domain license to enable anyone to reference the Flickr8k Dataset
 
 
-## 2.1 Flicker8k Dataset
+## 2.1 Flickr8k Dataset
 
 The dataset contains ~8000 images of various different stock images. These images have ~5 captions attached with them (located in the captions.txt file). First let's start by examining the images in the dataset. 
 
@@ -62,11 +62,99 @@ For data cleaning our outline was very clear. We didn't want a lot of noise with
 
 # 3. Methods
 
-## 3.1 Preprocessing
+This section aims to discuss the preprocessing and model building. The preprocessing will discuss the tokenization of the captions and the model building will discuss the transfer learning process and the Encoder/Decoder structure. Furthermore, this section will discuss the model's regularization techniques and the loss function used to train the model.
 
-One of the preprocessing steps, inspired from our CPSC-393 classwork, was adding two custom tokens/tags for each caption. Towards the beginning of the caption, we would add something called `'startseq '` and at the end, we would add `' endseq'`, still following the standardization conventions mentioned for the sake of consistency. These two tags enabled us to help train the model in order to recognize that at the beginning of the sequence, there is a logic-sounding start, and at the end of the sequence, there is a logical end. This mitigates the chances of the model generating a caption that starts or ends with something like the word "and". Since every single caption prepended and appended these two custom tokens uniformly, it reinforced the model to understand the start and end a little better.
+## 3.1 Preprocessing and Tokenization
+
+The first of the preprocessing steps, inspired from our CPSC-393 classwork, was adding two custom tokens/tags for each caption. Towards the beginning of the caption, we would add something called `'startseq '` and at the end, we would add `' endseq'`, still following the standardization conventions mentioned in section 2 for the sake of consistency. These two tags enabled us to help train the model in order to recognize that at the beginning of the sequence, there is a logic-sounding start, and at the end of the sequence, there is a logical end. This mitigates the chances of the model generating a caption that starts or ends with something like the word "and". Since every single caption prepended and appended these two custom tokens uniformly, it reinforced the model to understand the start and end a little better. Also, we preferred this method because we didn't want to feed in a specific variable that represents how many words the model will output. We want a model to literally prepare a caption with no help from the external user; thus, applying a start and end token to each caption ensures the model will generate a caption until the end token is reached.
+
+Next, we tokenized the captions. This was done using the `Tokenizer` class from the `tensorflow.keras.preprocessing.text` module. We appended all the captions into a list and then passed the list into the Tokenizer class. This creates our vocabulary of unique words. We then used the `Tokenizer` class's `fit_on_texts` method to create a dictionary of words and their corresponding integer values. This dictionary is used to convert the captions into a sequence of integers. This is done using the `Tokenizer` class's `texts_to_sequences` method. This method takes in a list of captions and converts each caption into a sequence of integers. This is done by looking up each word in the caption and finding its corresponding integer value in the dictionary. 
+
+## 3.2 Word Embeddings
+
+Word Embeddings are a vital tool to our project. Word Embeddings are a way to represent words as vectors. This is done by using a pre-trained model that has learned the semantics of words. The model we used was the [GloVe model](https://mmuratarat.github.io/2020-03-20/glove). This model was trained on 6 billion tokens and has 400,000 words in its vocabulary. The model we used was the 200-dimensional model. This means that each word is represented as a 200-dimensional vector. This is extremely useful because it allows us to represent words as vectors and then use those vectors to train our model. The GloVe model is combined with our vocabulary to create an embedding matrix. This embedding matrix is specific to our vocabulary instead of all the words within the GloVe model. From here, we can use this for the embedding layer in our model which will be discussed later.
+
+## 3.3 Transfer Learning
+
+Transfer learning is a vital tool to our project. Transfer learning is the process of using a pre-trained model and then using it for a different task. In our case, we are using the InceptionV3 model. In Tensorflow, the `InceptionV3` class is derived from the `tensorflow.keras.applications` module. This model was trained on the ImageNet dataset which contains over 14 million images and 20,000 categories. We modified the model to extract features from the images. The model was modified to ensure we are only retaining the hidden representations of the model. The hidden representations are what provide us the important features of the Flickr8k. Below is a code snippet showcasing how we modified the InceptionV3 model to only retain the hidden representations.
+
+The following code is found in the `feature_extraction.py` file.
+```python
+# Create a new model, by removing the last layer (output layer) from the inception v3
+base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(224,224,3))
+
+# Remove classification layers
+pooled_output = base_model.layers[-1].output
+encoded_features = GlobalAveragePooling2D()(pooled_output)
+
+# Create updated model w/o classification layers
+feature_extraction = Model(inputs=base_model.input, outputs=encoded_features)
+
+# Freeze layers in base model
+for layer in base_model.layers:
+    layer.trainable = False # ensures these layers aren't retrained 
+```
+
+This class takes in the input shape, which is set to (224, 224, 3) and the weights, which is set to `imagenet`. This ensures that the model is using the weights from the ImageNet dataset. The model is then used to extract features from the images using the `predict` method from the `InceptionV3` class. Once prepared for training, we pass in the images from the Flickr8k dataset we receive a 2048-dimensional vector for each image. Prior to the images being passed in they are resized to fit the (224, 224, 3) shape that was set for the InceptionV3 model. The resulting features are serialized  using the `'pickle'` python library such that it can be referenced in the model.py file. This vector is then used to train the model. 
+
+## 3.4 Encoder/Decoder Structure
+
+The meat of our project is reliant on an encoder/decoder structure with a sequence feature layer in-between to represent the LSTM layers that learn based on the embedding layer and the captions. Before we dive into each part of the model, let's take a look at the model's summary.
+
+![Model Summary](src/complete_arch.png){width="300px"}
+
+The picture indicated showcases the how the different layers get fused. On the right side we have the encoder model that accepts the 2048-dimensional vector representing an image's encoded_features. On the left side we have the LSTM layers being trained on the embedding layer and embedding matrix. Finally the two sides fuse together to create the output layer that produces the probabilities for the next word in the sequence.
+
+### 3.4.1 Encoder
+
+The Encoder is formatted as follows:
+
+```python
+# Encoder
+inputs1 = Input(shape=(2048,))
+fe1 = BatchNormalization()(inputs1)
+fe2 = Dense(256, activation='relu')(fe1)
+```
+It is straightforward, the encoder accepts the extracted features from the InceptionV3 model. The features are then passed through a BatchNormalization layer to normalize the features. This is done to ensure the model is not biased towards certain features. The features are then passed through a Dense layer with a ReLU activation function.
+
+### 3.4.2 Sequence Feature Layer
+
+The Sequence Feature Layer is formatted as follows:
+
+```python
+# Sequence Feature Layer
+inputs2 = Input(shape=(max_length,))
+se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
+se2 = LayerNormalization()(se1)
+se3 = LSTM(256, return_sequences=True)(se2)
+norm = LayerNormalization()(se3)
+se4 = LSTM(256)(norm)
+norm2 = LayerNormalization()(se4)
+```
+
+The Sequence Feature Layer is where the LSTM layers are located. The first step is to pass in the captions. The captions are passed through an Embedding layer. From there layer normalization is used and then passed into the an LSTM layer with return_sequences set to True. This is done to ensure the LSTM layer returns the hidden state for each input time step. The hidden state is then passed through another layer normalization layer. This is then passed through another LSTM layer with return_sequences set to False. This is done to ensure the LSTM layer returns the hidden state for the last input time step. The hidden state is then passed through another layer normalization layer.
+
+### 3.4.3 Decoder
+
+Finally the two sides are fused together to create the decoder. The decoder is formatted as follows:
+
+```python
+# Decoder
+decoder1 = add([fe2, norm2])
+decoder2 = Dense(256, activation='relu')(decoder1)
+outputs = Dense(vocab_size, activation='softmax')(decoder2)
+```
+A very simple structure that aims to take the two sides (sequence feature and the encoder) and fuse them together. The two sides are passed into a Dense layer to ensure the model can learn the features from both sides. The output layer is then passed into a Dense layer with a softmax activation function. This is done to ensure the model can learn the probabilities for the next word in the sequence.
+
+## 3.5 Model Regularization
+
+This section aims to discuss the model's regularization techniques. The model uses the following regularization techniques: Layer Normalization, and Batch Normalization. Both these techniques are used to ensure the model is not biased towards certain features. This is done to ensure the model is learning the features from the images and the captions. Layer Normalization is used to normalize the caption's features. Layer Normalization is preferred to Batch Normalization for recurrent structures because it normalizes over the feature dimension (it calculates the mean and variance for each instance separately) whereas batch normalization depends on the batch size and normalizes over the batch dimension. Batch Normalization is used to normalize the image's features to ensure the model is not biased towards certain features in the images. I recommend reading more about this topic in the [Understanding Batch Normalization, Layer Normalization and Group Normalization by implementing from scratch](https://www.linkedin.com/pulse/understanding-batch-normalization-layer-group-implementing-pasha-s/) article.
+
+We tried using Dropout layers; however, this didn't adjust the accuracy of the model. The accuracy was very low when we used these layers. Once we introduced the normalization layers, the accuracy increased significantly, the resulting accuracy is discussed in the results section. We assume the dropout layers didn't work for the encoder because we already extracted the features from the pretrained model; thus, normalization just smoothed out the data. For the sequence feature layer it doesn't make sense to use dropout layers because it could lead to having holes in the sequential data meaning semantics and syntax could be lost. Hence, we opted to use normalization layers instead of dropout layers.
 
 # 4. Results
+
+
 
 # 5. Reflection
 
@@ -85,3 +173,6 @@ References are placed in order of appearance in the report.
 
 1. HubSpot. [HubSpot](https://blog.hubspot.com/marketing/image-alt-text)
 2. Sharif, et. al. [Understanding Screen-Reader Users’ Experiences with Online Data Visualizations](https://dl.acm.org/doi/10.1145/3441852.3471202)
+3. Flickr8k Dataset. [Flickr8k Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
+4. Hockenmaier, et. al. [Flickr8k Original Authors](https://hockenmaier.cs.illinois.edu/8k-pictures.html)
+5. GloVe Model. [GloVe Model](https://mmuratarat.github.io/2020-03-20/glove)

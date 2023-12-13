@@ -14,3 +14,6 @@ src/encoder.txt
 *Prediction.png
 Flicker8k
 *.zip
+*.log
+*.tex
+Report_files
