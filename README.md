@@ -10,10 +10,21 @@ c) CPSC 393-02
 
 d) Final Project - Image Caption Generator
 
+## Final Deliverables (Corresponding Links are in the following section)
+- Report
+- glove_unzip.py (used to unzip the glove_embeddings)
+- feature_extraction.py
+- model.py
+- README.md (This file)
+
+
 ## Important Links 
 - [Report](report/Report.pdf)
 - [Proposal](proposal/Proposal.pdf)
 - [Code](src/)
+    - [glove_unzip.py](src/glove_unzip.py)
+    - [feature_extraction.py](src/feature_extraction.py)
+    - [model.py](src/model.py)
 - [Flicker8k Kaggle Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
 - [Flicker Source Documentation](https://hockenmaier.cs.illinois.edu/8k-pictures.html)
 
