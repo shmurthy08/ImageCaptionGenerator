@@ -44,7 +44,9 @@ pip install pickle
 ## Contributions
 
 Shree Murthy:
-- Created the .py files for the project and created the main encoder/decoder model 
+- Created the .py files for the project
+- Created and Coded Encoder/Decoder Model
+- Created the feature that accepts any image to be inputted and captioned  
 - Typed up the Proposal and Final Report with assistance from Dylan and Rahul
 
 Rahul Sura:
@@ -54,7 +56,7 @@ Rahul Sura:
 - Wrote the Image Extraction Feature using InceptionV3
 
 Dylan Inafuku:
-- Helped create the feature that accepts any image to be inputted and captioned
+- Helped Shree create the feature that accepts any image to be inputted and captioned
 - Helped Shree with the Proposal and Final Report
 - Created the README.md file and Final Presenation slidedeck 
 - Found the GloVe embedding file(s) and helped implement it into the model
